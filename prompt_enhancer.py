@@ -1,11 +1,5 @@
 import streamlit as st
-import os
-from dotenv import load_dotenv
 from openai import OpenAI
-
-load_dotenv()  # This reads your .env file
-api_key = st.secrets.get("OPENAI_API_KEY")  # This gets the key
-print(f"Key loaded: {api_key[:10]}...")  # Shows first 10 characters only
 
 # Function to enhance the prompt
 def enhance_prompt(api_key, role, context, task):
@@ -23,7 +17,7 @@ def enhance_prompt(api_key, role, context, task):
     try:
         # Initialize client with the API key
         client = OpenAI(api_key=api_key)
-        
+
         # Create a chat completion with the updated API
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -36,15 +30,16 @@ def enhance_prompt(api_key, role, context, task):
     except Exception as e:
         return f"Error: {e}"
 
+
 # Streamlit UI
 def main():
     st.title("AI Prompt Enhancer")
     st.write("Improve and structure your prompts for better AI responses.")
-    
+
     # Sidebar for API key input
     st.sidebar.header("Settings")
     api_key = st.sidebar.text_input("Enter your OpenAI API Key", type="password")
-    
+
     role = st.text_input("Role", "")
     context = st.text_area("Context", "")
     task = st.text_area("Task", "")
@@ -53,11 +48,17 @@ def main():
         if not api_key:
             st.warning("Please enter your OpenAI API key in the sidebar.")
         elif role and context and task:
-            enhanced_prompt = enhance_prompt(api_key, role, context, task)
-            st.subheader("Enhanced Prompt:")
-            st.code(enhanced_prompt, language="markdown")
+            with st.spinner("Enhancing your prompt..."):
+                enhanced_prompt = enhance_prompt(api_key, role, context, task)
+
+                if enhanced_prompt.startswith("Error:"):
+                    st.error(enhanced_prompt)
+                else:
+                    st.subheader("Enhanced Prompt:")
+                    st.code(enhanced_prompt, language="markdown")
         else:
             st.warning("Please fill in all fields before generating.")
+
 
 if __name__ == "__main__":
     main()
