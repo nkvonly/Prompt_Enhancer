@@ -1,18 +1,11 @@
 import streamlit as st
-from openai import OpenAI
 import os
+from dotenv import load_dotenv
+from openai import OpenAI
 
-# Try to load from Streamlit secrets (for cloud)
-try:
-    api_key_from_config = st.secrets["OPENAI_API_KEY"]
-except:
-    # Fall back to .env file (for local development)
-    try:
-        from dotenv import load_dotenv
-        load_dotenv()
-        api_key_from_config = os.getenv("OPENAI_API_KEY")
-    except:
-        api_key_from_config = None
+load_dotenv()  # This reads your .env file
+api_key = os.getenv("OPENAI_API_KEY")  # This gets the key
+print(f"Key loaded: {api_key[:10]}...")  # Shows first 10 characters only
 
 # Function to enhance the prompt
 def enhance_prompt(api_key, role, context, task):
@@ -50,32 +43,19 @@ def main():
     
     # Sidebar for API key input
     st.sidebar.header("Settings")
+    api_key = st.sidebar.text_input("Enter your OpenAI API Key", type="password")
     
-    # Use configured key if available, otherwise ask for input
-    if api_key_from_config:
-        api_key = api_key_from_config
-        st.sidebar.success("✅ API Key loaded automatically")
-    else:
-        api_key = st.sidebar.text_input("Enter your OpenAI API Key", type="password")
-        if not api_key:
-            st.sidebar.warning("⚠️ Please enter your API key")
-    
-    role = st.text_input("Role", placeholder="e.g., You are a helpful assistant")
-    context = st.text_area("Context", placeholder="e.g., The user needs help with...")
-    task = st.text_area("Task", placeholder="e.g., Create a summary of...")
+    role = st.text_input("Role", "")
+    context = st.text_area("Context", "")
+    task = st.text_area("Task", "")
 
     if st.button("Enhance Prompt"):
         if not api_key:
             st.warning("Please enter your OpenAI API key in the sidebar.")
         elif role and context and task:
-            with st.spinner("Enhancing your prompt..."):
-                enhanced_prompt = enhance_prompt(api_key, role, context, task)
-            
-            if enhanced_prompt.startswith("Error:"):
-                st.error(enhanced_prompt)
-            else:
-                st.subheader("Enhanced Prompt:")
-                st.code(enhanced_prompt, language="markdown")
+            enhanced_prompt = enhance_prompt(api_key, role, context, task)
+            st.subheader("Enhanced Prompt:")
+            st.code(enhanced_prompt, language="markdown")
         else:
             st.warning("Please fill in all fields before generating.")
 
