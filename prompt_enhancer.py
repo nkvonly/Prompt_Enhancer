@@ -1,4 +1,10 @@
 import streamlit as st
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # This reads your .env file
+api_key = os.getenv("OPENAI_API_KEY")  # This gets the key
+print(f"Key loaded: {api_key[:10]}...")  # Shows first 10 characters only
 from openai import OpenAI
 
 # Function to enhance the prompt
