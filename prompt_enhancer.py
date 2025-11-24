@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 
 load_dotenv()  # This reads your .env file
-api_key = os.getenv("OPENAI_API_KEY")  # This gets the key
+api_key = st.secrets.get("OPENAI_API_KEY")  # This gets the key
 print(f"Key loaded: {api_key[:10]}...")  # Shows first 10 characters only
 
 # Function to enhance the prompt
